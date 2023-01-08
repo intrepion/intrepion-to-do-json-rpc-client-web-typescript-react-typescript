@@ -1,12 +1,10 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect } from "react-router-dom";
 import { v4 } from "uuid";
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL ?? "http://localhost:3000";
 
 const Logout: React.FC = () => {
-  const navigate = useNavigate();
-
   useEffect(() => {
     fetch(SERVER_URL, {
       method: "POST",
@@ -19,10 +17,12 @@ const Logout: React.FC = () => {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        if (responseJson.result) {
-          navigate("/");
-        } else if (responseJson.error) {
+        if (responseJson.error) {
           console.error(responseJson.error);
+        } else {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          redirect("/");
         }
       })
       .catch((error) => {
